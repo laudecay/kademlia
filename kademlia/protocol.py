@@ -6,7 +6,7 @@ from rpcudp.protocol import RPCProtocol
 
 from kademlia.node import Node
 from kademlia.routing import RoutingTable
-from kademlia.utils import digest
+from kademlia.utils import digest, validate_key
 
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -41,7 +41,8 @@ class KademliaProtocol(RPCProtocol):
         self.welcome_if_new(source)
         log.debug("got a store request from %s, storing '%s'='%s'",
                   sender, key.hex(), value)
-        self.storage[key] = value
+        if validate_key(value):
+            self.storage[key] = value
         return True
 
     def rpc_find_node(self, sender, nodeid, key):

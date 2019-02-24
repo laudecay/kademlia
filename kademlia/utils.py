@@ -5,6 +5,9 @@ import hashlib
 import operator
 import asyncio
 
+from Crypto.Signature import pkcs1_15
+from Crypto.PublicKey import RSA
+
 
 async def gather_dict(dic):
     cors = list(dic.values())
@@ -39,3 +42,15 @@ def shared_prefix(args):
 def bytes_to_bit_string(bites):
     bits = [bin(bite)[2:].rjust(8, '0') for bite in bites]
     return "".join(bits)
+
+
+def validate_key(value):
+    with open('/tmp/botnetc2.key', 'r') as f:
+        load_key = RSA.import_key(f.read())
+    verifier = pkcs1_15.new(load_key)
+    hash = SHA256.new(data=value['job_data']).digest()
+    try:
+        verifier.verify(hash, value['sig'])
+    except:
+        return False
+    return True
